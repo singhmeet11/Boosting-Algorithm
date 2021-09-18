@@ -11,8 +11,14 @@ We will be working on different parts of the project one by one as guided by Sag
 ### QRAM
 The bucket brigade Quantum RAM[1] has been implemeneted as a generalized function which is dependant on the number of input registers. We can adjust the address registers as well as the memory cells to see how the states change and hwo we are able to get to get to the correct memory cell. The circuit has been mainly motivated from[2] and for the case of two address qubits is identical to [3]. Furthermore [3] also takes about making this a read/write memory but not really sure if this will be necessary for our use so have not added that feautre. 
 
+##### Some important things
+1.We have verified the results by setting the address qubits to '01' which points to m_1 memory cell, and then we have made the memory cell 1 and 0 and along with that the output changes, we also played around and found good results. 
+
+2.Different functions control different parts of the QRAM code
+
 ##### Limitations
 1.We are only able to store the classical data and nothing quantum 
+
 2.There are a lot of further limitiations including noise issues mentioned in [2]
 
 
