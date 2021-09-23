@@ -54,7 +54,7 @@ void QRAM(int a){
  	int q_b = a + pow(2,(a+1)); // a+ 2^(a+1)
 	// initalizing different quantum registers
 	
-	Qureg qr = createQureg(a,env);
+	Qureg qr = createQureg(q_b,env);
 	initZeroState(qr);
 	
 	
@@ -79,8 +79,10 @@ void QRAM(int a){
 		for(int i=2; i<a+1; i++){ // here every 'i' represent the level of the binary tree
 			for(int j=0; j<pow(2,(i-1)); j++){ 
 				int control[] = {q_a + (i-1), q_r + j};
-				int target = q_r +j + pow(2, i-1);
-				multiControlledMultiQubitNot(qr, control , 2, &target, 1); // here used '&' so as to control the problem of int to int*
+				int *ptr_c = control;
+				int target[] = {q_r +j + pow(2, i-1)};
+				int *ptr_t = target;
+				multiControlledMultiQubitNot(qr, ptr_c , 2, ptr_t, 1); // here used '&' so as to control the problem of int to int*
 				controlledNot(qr, q_r + j+pow(2,(i-1)),q_r + j);
 			}
 		}	
@@ -131,7 +133,10 @@ void QRAM(int a){
 	// ccx on memory cells
 	for (int i=0; i<pow(2,a); i++){
 		int control[] = {q_r + i , q_m + div_dec[i]};
-		multiControlledMultiQubitNot(qr , control, 2 ,&q_b, 1);
+		int target[] = {q_b};
+		int *ptr_c = control;
+		int *ptr_t = target;
+		multiControlledMultiQubitNot(qr , ptr_c, 2 ,ptr_t, 1);
 	}
 	
 	// now we will be measuring each qubit and seeing how it works properly 
