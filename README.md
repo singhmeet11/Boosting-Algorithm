@@ -34,4 +34,4 @@ The complete Estimation-Amplification process is a useful subroutine for Quantum
 
 3.[IMPLEMENTING QRAM IN QISKIT WITH CODE(a blogpost)](https://quantumcomputinguk.org/tutorials/implementing-qram-in-qiskit-with-code)
 
-4.[Quantum Amplitude Amplification and Estimation] (https://arxiv.org/abs/quant-ph/0005055)
+4.[Quantum Amplitude Amplification and Estimation](https://arxiv.org/abs/quant-ph/0005055)
