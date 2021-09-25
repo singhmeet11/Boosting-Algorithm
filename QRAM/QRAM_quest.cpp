@@ -30,12 +30,20 @@ int countDigit(int n){ //
     return count;
 }
 	
-int numConcat(int num1, int num2){  // for concatinating one number in front of the other thing mainly the addition of 0 or 1 to the circuits different parts
+int numConcat(int a, int b){  // for concatinating one number in front of the other thing mainly the addition of 0 or 1 to the circuits different parts
 	
-    int digits = countDigit(num2);
-    num1 = num1 * (pow(10,digits));
-    num1 += num2;
-    return num1;
+	string s1 = to_string(a);
+    string s2 = to_string(b);
+ 
+    // Concatenate both strings
+    string s = s1 + s2;
+ 
+    // Convert the concatenated string
+    // to integer
+    int c = stoi(s);
+ 
+    // return the formed integer
+    return c;
 }  
    
    
@@ -54,23 +62,27 @@ void QRAM(int a){
  	int q_b = a + pow(2,(a+1)); // a+ 2^(a+1)
 	// initalizing different quantum registers
 	
-	Qureg qr = createQureg(q_b,env);
+	Qureg qr = createQureg(q_b+1,env);
 	initZeroState(qr);
 	
 	
 	// setting the memory cells and the address register for accessing various memory cells 
-	// pauliX(qr, 1]);
+	// pauliX(qr, 0);
+	pauliX(qr, 1);
+	hadamard(qr, q_m+1);
+	//pauliX(qr, q_m+2);
+	//pauliX(qr, q_m+3);
 	// pauliX(qr, 1);
 	
 	// Branching starts from here 
 	// 
 	// We make the second qubit of the routing node equal to 1
-	pauliX(qr, 1);
+	pauliX(qr, q_r + 1);
 	
 	// First Node Branches
 	// Not sure if cx can be used on two different quantum registers this way controlledNot([Qureg* qr_a, Qureg* qr_r], qr_a,qr_a[0],qr_r[0]);
- 	controlledNot(qr , 0 , q_r);
-	controlledNot(qr , q_r , 1);
+ 	controlledNot(qr , q_a + 0 , q_r);
+	controlledNot(qr , q_r , q_r + 1);
 
 	
 	// Maybe multiple q-registers can be accessed as a list of pointers
@@ -78,11 +90,14 @@ void QRAM(int a){
 	if(a!=1){
 		for(int i=2; i<a+1; i++){ // here every 'i' represent the level of the binary tree
 			for(int j=0; j<pow(2,(i-1)); j++){ 
+				
+				// trying to use another gate
+			    ComplexMatrix2 x = {
+    				.real={{0,1},{1,0}},
+        			.imag={{0,0},{0,0}}
+    			};
 				int control[] = {q_a + (i-1), q_r + j};
-				int *ptr_c = control;
-				int target[] = {q_r +j + pow(2, i-1)};
-				int *ptr_t = target;
-				multiControlledMultiQubitNot(qr, ptr_c , 2, ptr_t, 1); // here used '&' so as to control the problem of int to int*
+				multiControlledUnitary(qr, control, 2, q_r +j + pow(2, i-1), x);
 				controlledNot(qr, q_r + j+pow(2,(i-1)),q_r + j);
 			}
 		}	
@@ -95,6 +110,7 @@ void QRAM(int a){
 	div.push_back(1);
 	div.push_back(0);
 	
+	
 	int d = pow(2,a);
 	
 	vector<int> new_div;
@@ -106,18 +122,21 @@ void QRAM(int a){
 		//appending
 		div.insert(div.end(), div.begin(), div.end());
 		for(int i=0; i<div.size(); i++){
+			// cout << "\n \n div  " << div[i] << "\n \n";
 		}
 		cout<<endl;
 		int dim = div.size();
+		
 		for(int j = 0; j<dim/2; j++){
 			new_div[j]=numConcat(div[j], 0);
 		}
-		for(int k = 0; k<dim/2; k++){
+		for(int k = dim/2; k<dim; k++){
 			new_div[k]=numConcat(div[k], 1);
 		}
 		
 		for(int m=0; m<dim; m++){
 			div[m] = new_div[m];
+			// cout << "\n \n div  " << div[i] << "\n \n";
 		}
 		cout<<endl;
 	}   
@@ -132,23 +151,28 @@ void QRAM(int a){
 	// once we know which ones to couple and how then we can apply ccx gate with routing and memory qubtis as control and the  bus as the target
 	// ccx on memory cells
 	for (int i=0; i<pow(2,a); i++){
+
+		ComplexMatrix2 x = {
+			.real={{0,1},{1,0}},
+			.imag={{0,0},{0,0}}
+  		};
 		int control[] = {q_r + i , q_m + div_dec[i]};
-		int target[] = {q_b};
-		int *ptr_c = control;
-		int *ptr_t = target;
-		multiControlledMultiQubitNot(qr , ptr_c, 2 ,ptr_t, 1);
+		multiControlledUnitary(qr, control, 2, q_b, x);
 	}
 	
-	// now we will be measuring each qubit and seeing how it works properly 
-	int prob = calcProbOfOutcome(qr, q_b, 1);
-	//int outcome = measureWithStats(qr, q_b, &prob);
-	printf("The memory cell 00 was measured and the outcome collapsed to 0 with probability %d\n", prob);
+	// now we will be measuring bus qubit and seeing how it works properly 
+	qreal prob = calcProbOfOutcome(qr, q_b , 0);
+
+	int outcome = measureWithStats(qr, q_b , &prob);
+	printf("The memory cell 01(q_0 q_1) was measured and the outcome collapsed to %d with probability %g\n",outcome, prob);
 
 
 	// destroying the enviroment and the qubits now
 	destroyQureg(qr, env);
 	destroyQuESTEnv(env);
 
+
+    
 	  		
 }
 
