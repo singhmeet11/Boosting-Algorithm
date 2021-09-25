@@ -20,6 +20,11 @@ The bucket brigade Quantum RAM[1] has been implemeneted as a generalized functio
 
 2.There are a lot of further limitiations including noise issues mentioned in [2]
 
+##### Conversion from QISKIT to QuEST
+1.The main difference is that in qiskit we can initialize the various qubit registers and apply multi qubit gates instead but in QuEST multiqubit gates can not be applied in between multiple qubits. Due to which while converting between them make variables which mark the starting points of the Qubit regsiters.
+
+2.Tried using MultiControlledMultiNot gate in QuEST for creating Toffoli but that did not work due to which used the MultiControlledUnitary and defined unitary as x gate's pauli matrix.   
+
 ### QSearch - Ampltitude Amplification, Amplitude Estimation
 Grover's Algorithm lets us search through an unsorted database with a quadratic speedup over classical methods, i.e database of N elements can be searched through by order of N^(1/2) queries, use of an Oracle is involved. If we have N elements, represented by bitstrings of n length, (N=2^n), and the number of solutions, i.e. Good States, is known to be M, then Quantum Amplitude Amplification can be applied to amplify the probability of finding the Good State (Solution states) and thus reduce the Amplitude and probability of finding the Bad state (i.e not solutions). How it's done is; the initial state is prepared (as an equal superposition of 2^n states in our example), then the Oracle 'marks' the Good States. Then this whole state undergoes a reflection about a state that is orthogonal to the superposition of good states (this Orthogonal state is made by taking a superposition of all states left after removing the good states). By now our state is in a phase opposite to the bad state and Amplitude of the bad state has been reduced. Then the state undergoes another reflection about itself. This way the the state comes closer to the Good State by a certain angle, now if the number of solutions is known, then the process of the two Reflections can be repeated by a suitable number of times to reach closer and closer to the good state.
 
